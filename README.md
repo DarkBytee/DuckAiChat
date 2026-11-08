@@ -136,6 +136,7 @@ Click the button and Render reads the `render.yaml` blueprint in this repo — i
 
 - **Free plan** — the instance sleeps after ~15 minutes of inactivity and wakes on the first request.
 - **`GEMINI_API_KEY`** — the deploy wizard asks for it; you can leave it **empty** (it's only the optional fallback).
+- **⚠️ Blocked egress IPs** — some clouds (including Render/AWS) have IP ranges duck.ai refuses at the network level; replies then fail with `[fetch failed]`. Fix: set `DUCK_PROXY` to an HTTP(S) proxy, or `GEMINI_API_KEY` for fallback mode.
 - Every push to `main` auto-deploys.
 
 ---
@@ -180,6 +181,7 @@ Every generated image is upscaled with Lanczos and sharpened server-side before 
 |---|:---:|---|
 | — | — | **Nothing.** The app runs out of the box. |
 | `GEMINI_API_KEY` | optional | Google Gemini key, used only as an automatic fallback (chat + image generation) when duck.ai is unreachable |
+| `DUCK_PROXY` | optional | HTTP/HTTPS proxy URL (e.g. `http://user:pass@host:port`) used for duck.ai requests. Needed on hosts whose datacenter IPs duck.ai blocks. |
 | `NEXT_PUBLIC_BASE_PATH` | optional | Base path when deploying under a sub-path (e.g. `/chatai`) |
 | `APP_URL` | optional | Public URL of your deployment, used for self-referential links |
 
@@ -222,6 +224,7 @@ lib/
 | «سرور در حال حاضر پاسخگو نیست» | duck.ai is unreachable from your server or rotated its challenge — retry, and check the server console. |
 | 403 / challenge errors | duck.ai changed its anti-bot scheme. Open an issue — the solver may need an update. |
 | duck.ai unavailable in your region | Deploy on a server in a supported region — all requests are made **server-side**, never from your browser. |
+| Every message fails with `[fetch failed]` on a cloud host | duck.ai blocks many datacenter IP ranges at the network level. Set `DUCK_PROXY` (HTTP/HTTPS proxy) — or `GEMINI_API_KEY` as a pure fallback. |
 | Native module errors during install | Approve install scripts (see [Getting started](#-getting-started)) then `npm rebuild`. |
 | Images fail to upload | They are re-encoded server-side with `sharp`; make sure its native binary installed correctly. |
 
@@ -351,6 +354,7 @@ npm run dev
 
 - **پلن رایگان** — بعد از ~۱۵ دقیقه بی‌فعالیتی می‌خوابه و با اولین درخواست بیدار میشه
 - **`GEMINI_API_KEY`** — توی ویزارد دپلوی می‌پرسه؛ می‌تونی **خالی بذاری** (فقط فال‌بک اختیاریه)
+- **⚠️ بلاک‌شدن IP سرور** — duck.ai خیلی از IPهای دیتاسنتر (از جمله Render/AWS) رو در سطح شبکه می‌بنده و پیام‌ها با `[fetch failed]` خطا میدن. راه‌حل: `DUCK_PROXY` رو با یه پروکسی HTTP(S) پر کن، یا `GEMINI_API_KEY` رو برای حالت جایگزین بذار
 - هر پوش به `main` خودکار دپلای میشه
 
 ### 🧠 معماری
@@ -374,6 +378,7 @@ flowchart LR
 |---|:---:|---|
 | — | — | **هیچ‌چیز.** اپ بدون تنظیمات اجرا می‌شود. |
 | `GEMINI_API_KEY` | اختیاری | فقط وقتی duck.ai در دسترس نباشد به‌عنوان جایگزین خودکار استفاده می‌شود |
+| `DUCK_PROXY` | اختیاری | آدرس پروکسی HTTP/HTTPS (مثل `http://user:pass@host:port`) برای درخواست‌های duck.ai — روی سرورهایی که IP دیتاسنترشان بلاک است لازم می‌شود |
 | `NEXT_PUBLIC_BASE_PATH` | اختیاری | انتشار زیر زیرمسیر مثل `/chatai` |
 | `APP_URL` | اختیاری | آدرس عمومی دیپلای |
 

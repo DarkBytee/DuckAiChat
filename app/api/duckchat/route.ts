@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import * as jsdomPkg from 'jsdom';
 import sharp from 'sharp';
 import { GoogleGenAI } from '@google/genai';
+import { ProxyAgent, fetch as undiciFetch } from 'undici';
 import {
   BASE_URL,
   DEFAULT_UA,
@@ -41,6 +42,23 @@ const sessionCache: SessionState = {
   cookies: new Map(),
   lastUpdated: 0,
 };
+
+// Optional proxy for duck.ai egress — useful on hosts whose datacenter IP
+// ranges are blocked by duck.ai at the network level (e.g. some clouds).
+// Set DUCK_PROXY=http://user:pass@host:port (HTTP/HTTPS proxy).
+const duckProxyUrl = (process.env.DUCK_PROXY || '').trim();
+const duckDispatcher = duckProxyUrl ? new ProxyAgent(duckProxyUrl) : undefined;
+if (duckDispatcher) {
+  console.log('[duckchat] duck.ai requests routed via DUCK_PROXY');
+}
+
+function duckFetch(url: string, init: Record<string, unknown>): Promise<Response> {
+  if (!duckDispatcher) return fetch(url, init as RequestInit) as Promise<Response>;
+  return undiciFetch(url, {
+    ...init,
+    dispatcher: duckDispatcher,
+  } as never) as unknown as Promise<Response>;
+}
 
 let inFlightHandshake: Promise<{ feVersion: string; jsa: string }> | null = null;
 
@@ -285,7 +303,7 @@ async function performRehandshake(ua = DEFAULT_UA): Promise<{
       'Accept-Language': 'en-US,en;q=0.9',
     };
 
-    const bootRes = await fetch(`${BASE_URL}/`, {
+    const bootRes = await duckFetch(`${BASE_URL}/`, {
       headers: commonHeaders,
       cache: 'no-store',
       signal: AbortSignal.timeout(15_000),
@@ -298,7 +316,7 @@ async function performRehandshake(ua = DEFAULT_UA): Promise<{
     sessionCache.feVersion = extractFeVersion(html);
 
     const cookieHeader = formatCookieHeader(sessionCache.cookies);
-    const statusRes = await fetch(`${BASE_URL}/duckchat/v1/status`, {
+    const statusRes = await duckFetch(`${BASE_URL}/duckchat/v1/status`, {
       headers: {
         ...commonHeaders,
         'x-vqd-accept': '1',
@@ -416,7 +434,7 @@ export async function POST(req: NextRequest) {
           });
 
           const cookieHeader = formatCookieHeader(sessionCache.cookies);
-          chatRes = await fetch(`${BASE_URL}/duckchat/v1/chat`, {
+          chatRes = await duckFetch(`${BASE_URL}/duckchat/v1/chat`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -524,7 +542,9 @@ export async function POST(req: NextRequest) {
         }
       } catch (e) {
         lastDuckError = e instanceof Error ? e.message : String(e);
-        console.error('[duckchat] duck.ai failed:', lastDuckError);
+        const cause = (e as any)?.cause;
+        if (cause) lastDuckError += ` (${cause.code || cause.message || cause})`;
+        console.error('[duckchat] duck.ai failed:', lastDuckError, cause || '');
         // Fallback if duck.ai returns an error after retries
       }
 

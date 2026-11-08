@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: process.cwd(),
   // استقرار زیر یک مسیر (مثلا /chatai): هنگام build، NEXT_PUBLIC_BASE_PATH=/chatai. بدون آن روی ریشه.
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || undefined,
-  serverExternalPackages: ['jsdom', 'sharp'],
+  serverExternalPackages: ['jsdom', 'sharp', 'undici'],
   transpilePackages: ['motion'],
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.

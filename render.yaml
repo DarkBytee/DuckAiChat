@@ -17,3 +17,5 @@ services:
         value: 0.0.0.0
       - key: GEMINI_API_KEY
         sync: false
+      - key: DUCK_PROXY
+        sync: false
