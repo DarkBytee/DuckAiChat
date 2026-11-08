@@ -386,6 +386,7 @@ export async function POST(req: NextRequest) {
       }
 
       let succeededViaDuckAi = false;
+      let lastDuckError = '';
 
       try {
         const retries = 4;
@@ -450,6 +451,7 @@ export async function POST(req: NextRequest) {
           if (chatRes.status === 200 && chatRes.body) {
             break;
           }
+          lastDuckError = `Chat HTTP ${chatRes.status}`;
 
           // If a Plus/Pro/deprecated model was rejected (e.g. 400/401/403/418), switch to its official Duck.ai free equivalent
           const fallbackModel = getFallbackFreeDuckModel(activeDuckModel);
@@ -520,7 +522,9 @@ export async function POST(req: NextRequest) {
             succeededViaDuckAi = true;
           }
         }
-      } catch {
+      } catch (e) {
+        lastDuckError = e instanceof Error ? e.message : String(e);
+        console.error('[duckchat] duck.ai failed:', lastDuckError);
         // Fallback if duck.ai returns an error after retries
       }
 
@@ -588,9 +592,10 @@ export async function POST(req: NextRequest) {
         }
 
         if (!succeededViaDuckAi) {
+          console.error('[duckchat] final failure:', lastDuckError || 'unknown');
           sendEvent({
             kind: 'error',
-            value: 'سرور در حال حاضر پاسخگو نیست. لطفاً چند لحظه دیگر دوباره امتحان کنید.',
+            value: `سرور در حال حاضر پاسخگو نیست. لطفاً چند لحظه دیگر دوباره امتحان کنید.${lastDuckError ? ` [${lastDuckError}]` : ''}`,
           });
         }
       }
