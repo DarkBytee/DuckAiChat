@@ -52,11 +52,6 @@ if (duckDispatcher) {
   console.log('[duckchat] duck.ai requests routed via DUCK_PROXY');
 }
 
-// When duck.ai is unreachable (blocked egress IP, outage), skip the retry
-// cycle for a while so users get the fallback instantly instead of waiting.
-const DUCK_DOWN_COOLDOWN_MS = 5 * 60_000;
-let duckDownUntil = 0;
-
 function duckFetch(url: string, init: Record<string, unknown>): Promise<Response> {
   if (!duckDispatcher) return fetch(url, init as RequestInit) as Promise<Response>;
   return undiciFetch(url, {
@@ -412,10 +407,6 @@ export async function POST(req: NextRequest) {
       let lastDuckError = '';
 
       try {
-        if (duckDownUntil > Date.now()) {
-          throw new Error('duck.ai skipped — recent connection failure');
-        }
-
         const retries = 4;
         let chatRes: Response | null = null;
 
@@ -554,16 +545,7 @@ export async function POST(req: NextRequest) {
         const cause = (e as any)?.cause;
         if (cause) lastDuckError += ` (${cause.code || cause.message || cause})`;
         console.error('[duckchat] duck.ai failed:', lastDuckError, cause || '');
-        // Only trip the cooldown on connection-level failures (blocked egress IP,
-        // DNS, TLS) — HTTP/challenge errors are per-request and may recover.
-        if (/fetch failed|ECONN|ETIMEDOUT|ENOTFOUND|UND_ERR/i.test(lastDuckError)) {
-          duckDownUntil = Date.now() + DUCK_DOWN_COOLDOWN_MS;
-        }
         // Fallback if duck.ai returns an error after retries
-      }
-
-      if (succeededViaDuckAi) {
-        duckDownUntil = 0;
       }
 
       if (!succeededViaDuckAi) {
