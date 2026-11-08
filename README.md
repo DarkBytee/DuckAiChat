@@ -253,6 +253,8 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## 🇮🇷 فارسی
 
+<div dir="rtl">
+
 **DuckAI Chat Studio** کلاینت وب کامل و رایگان برای [چت هوش مصنوعی DuckDuckGo](https://duck.ai) با ظاهری شبیه ChatGPT است — بدون API Key، بدون ثبت‌نام.
 
 <div align="center">
@@ -306,12 +308,16 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 پیش‌نیاز: **Node.js نسخه ۲۰ یا بالاتر**
 
+<div dir="ltr">
+
 ```bash
 git clone https://github.com/DarkBytee/DuckAiChat.git
 cd DuckAiChat
 npm install
 npm run dev
 ```
+
+</div>
 
 بعد باز کن: **http://localhost:3000** — همین! هیچ کلید یا اکانتی لازم نیست.
 
@@ -354,6 +360,8 @@ flowchart LR
 
 > [!IMPORTANT]
 > این پروژه یک کلاینت **غیررسمی** است و **هیچ وابستگی‌ای به DuckDuckGo ندارد**. فقط برای استفادهٔ شخصی و آموزشی ساخته شده. لطفاً مسئولانه استفاده کنید — اسپم نزنید و سوءاستفاده نکنید. دسترسی مدل‌ها و خود سرویس متعلق به DuckDuckGo است و ممکن است هر زمان تغییر کند یا قطع شود.
+
+</div>
 
 ---
 
