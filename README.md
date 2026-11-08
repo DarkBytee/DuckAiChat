@@ -128,6 +128,16 @@ npm start
 NEXT_PUBLIC_BASE_PATH=/chatai npm run build
 ```
 
+### ☁️ One-click deploy
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/DarkBytee/DuckAiChat)
+
+Click the button and Render reads the `render.yaml` blueprint in this repo — installs, builds (Next.js standalone output) and hosts it. A few notes:
+
+- **Free plan** — the instance sleeps after ~15 minutes of inactivity and wakes on the first request.
+- **`GEMINI_API_KEY`** — the deploy wizard asks for it; you can leave it **empty** (it's only the optional fallback).
+- Every push to `main` auto-deploys.
+
 ---
 
 ### 🧠 Architecture
@@ -221,7 +231,8 @@ lib/
 
 ### 🗺 Roadmap
 
-- [ ] Docker image & one-click deploy buttons (Vercel)
+- [x] One-click deploy to Render (`render.yaml`)
+- [ ] Docker image
 - [ ] Optional password protection for public deployments
 - [ ] Chat export/import (Markdown & JSON)
 - [ ] Search across chat history
@@ -331,6 +342,16 @@ npm run dev
 
 **بیلد پروداکشن:** `npm run build` سپس `npm start`
 **انتشار زیر زیرمسیر:** `NEXT_PUBLIC_BASE_PATH=/chatai npm run build`
+
+### ☁️ دپلوی با یک کلیک
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/DarkBytee/DuckAiChat)
+
+دکمهٔ بالا رو بزن — Render فایل `render.yaml` این ریپو رو می‌خونه و خودش نصب، بیلد (خروجی standalone نکست) و هاست رو انجام میده:
+
+- **پلن رایگان** — بعد از ~۱۵ دقیقه بی‌فعالیتی می‌خوابه و با اولین درخواست بیدار میشه
+- **`GEMINI_API_KEY`** — توی ویزارد دپلوی می‌پرسه؛ می‌تونی **خالی بذاری** (فقط فال‌بک اختیاریه)
+- هر پوش به `main` خودکار دپلای میشه
 
 ### 🧠 معماری
 
